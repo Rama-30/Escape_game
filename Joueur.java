@@ -2,7 +2,7 @@ package player;
 
 import java.util.Scanner;
 
-public class Joueuer 
+public class Joueur 
 {
 	
 	
