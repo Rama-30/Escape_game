@@ -6,11 +6,11 @@ import tools.Enigme;
 
 public class Personnage // le personnage est celui qui appuis sur les commandes
 {
-  private String nom = "Marc";
+  private final String  nom = "Marc";
   public Commande commande;
-  public Zone Position= null;
+  public Zone Position;
   public Objets recup= new Objets();
-  private int nbObjet;
+  
   
   
 
@@ -31,47 +31,55 @@ public class Personnage // le personnage est celui qui appuis sur les commandes
     return(this.Position);
   }
 
-  public String VerifiReponse(String reponse)
+  /*public static String VerifiReponse(String reponse)
   {
-    String verif = null;
-    try {
-		for(int i=0; i < 15; i++)
-		{
-		  if(Enigme.reponses[i]==reponse)
-		  {
-		   verif="Bonne reponse " + reponse + "\n";
-		  }
-		  else
-		   verif="Bonne reponse " + reponse + "\n";
+    String verif = "";
+    	for (int i = 0; i < Enigme.reponses.length; i++) 
+    	{
+    		if(Enigme.reponses[i]==reponse)
+  		  {
+  		   verif="Bonne reponse " + reponse + "\n";
+  		   return verif;
+  		  }
+  		  else
+  		   verif="Bonne reponse " + reponse + "\n";
+  		  return verif;
 		}
-	} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} 
-    return verif;
-  }
-
-  public String getNom() 
+		
+	
+    return reponse;
+  }*/
+  
+  
+  public static boolean contien(String[] reponses, String reponse) 
   {
-	return nom;
-  }
-
-  public void setNom(String nom) 
-	{
-		this.nom = nom;
+	    for (String rep : reponses) 
+	    {
+	        if (rep.equals(reponse)) 
+	        {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
-
-  public int getNbObjet()
-	{
-		return nbObjet;
+  public static String VerifiReponse(String reponse) 
+  {
+	  if (contien(Enigme.reponses, reponse)) {
+		    System.out.println("Bonne réponse "+ reponse + "\n");
+		} else {
+		    System.out.println("Mauvaise réponse " + reponse + "\n");
+		}
+	  
+	  return reponse;
+	    
 	}
+  
+  
 
-  public void setNbObjet(int nbObjet) 
-	{
-		this.nbObjet = nbObjet;
-	}
+  
 	
 	
 
 
 }
+
