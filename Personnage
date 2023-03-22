@@ -1,0 +1,46 @@
+package Player;
+
+
+public class Personnage // le personnage est celui qui appuis sur les commandes
+{
+  private String nom = "Marc";
+  public Commandes commande;
+  public Zone Position= null;
+  private int nbObjet=0;
+
+
+
+
+  private Objets[] emunérationObjetrecupérés()
+  {
+    for(Objets tools: Objets)
+    {
+      return("<------------liste des objets--------------->\n" + Objets + "\n <------------liste des objets--------------->\n");
+    }
+  }
+
+  private Zone Position(Zone loc)
+  {
+    this.Position=loc;
+    return(this.Position);
+  }
+
+  private String[] VerifiReponse(String reponse)
+  {
+    strirng verif;
+    for(int i=0; i<Enigmes.reponse.length(); i++)
+    {
+      if(Enigmes.reponse[i]==reponse)
+      {
+       verif="Bonne reponse " + reponse + "\n";
+      }
+      else
+       verif="Bonne reponse " + reponse + "\n");
+    } 
+    return verif;
+  }
+
+
+
+}
+ 
