@@ -57,7 +57,7 @@ public class Enigme {
 
 	
 
-	public void initReponses() {
+	public static void initReponses() {
 
 		reponses[0] = "C";
 		reponses[1] = "D";
@@ -78,10 +78,20 @@ public class Enigme {
 		
 	}
 
-	public  int rendIndiceEnigme() {
-		Enigme.initEnigmes();
+	public  int rendIndiceEnigmeParSonNiveau(int niveau) {
 		Random rand = new Random();
-		int index = rand.nextInt(enigmes.length-1);
+		int index;
+		if(niveau==1){	
+			index = rand.nextInt(4);
+		}
+		else{
+			if(niveau==2){
+				index = 4+rand.nextInt(9);
+			}
+			else{
+				index = 4+rand.nextInt(9);
+			}
+		}
 		String enigme= enigmes[index];
 		System.out.println(enigme);
 		return index;
