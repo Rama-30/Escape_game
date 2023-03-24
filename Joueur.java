@@ -2,6 +2,8 @@ package player;
 
 import java.util.Scanner;
 
+import tools.Enigme;
+
 public class Joueur 
 {
 	
@@ -11,7 +13,7 @@ public class Joueur
 	public Personnage MonPersonnage;
 	
 	
-	public Joueuer(String nom, String passWord) {
+	public Joueur(String nom, String passWord) {
 		this.Nom = nom;
 		this.PassWord = passWord;
 		MonPersonnage = new Personnage();
@@ -37,20 +39,27 @@ public class Joueur
 		this.PassWord = passWord;
 	}
 	
-	public void repondreEnigme()
+	public static boolean repondreEnigme()
 	{
 		Scanner Saisi =  new Scanner(System.in);
 		System.out.println("------> SAISISEZ VOTRE REPONSE <-------\n");
 		
 		String reponse=Saisi.nextLine();
 		
-		Personnage.VerifiReponse(reponse);
+		if(Personnage.contien(Enigme.reponses, reponse)==true)
+			{
+			Personnage.VerifiReponse(reponse);
+			return true;
+			}
+		else 
+			Personnage.VerifiReponse(reponse);
+			return false;
 	}
 	
 	
 	
 	
-	
+	// méthode position
 	
 	
 	
