@@ -1,85 +1,50 @@
 package player;
 
 import map.*;
-import tools.Objets;
+import tools.Objet;
 import tools.Enigme;
 
 public class Personnage // le personnage est celui qui appuis sur les commandes
 {
   private final String  nom = "Marc";
   public Commande commande;
-  public Zone Position;
-  public Objets recup= new Objets();
+  public int Position;
   
   
-  
-
-  public String emunérationObjetrecupérés()
-  {
-	  String affiche = null;
-    for (String objets : recup.getMesObjets()) 
-    {
-    	affiche="<------------liste des objets--------------->\n" + objets ;
-    	System.out.println(affiche);
-    }
-	return affiche;
-  }
-
-  public Zone Position(Zone loc)
-  {
-    this.Position=loc;
-    return(this.Position);
-  }
-
-  /*public static String VerifiReponse(String reponse)
-  {
-    String verif = "";
-    	for (int i = 0; i < Enigme.reponses.length; i++) 
-    	{
-    		if(Enigme.reponses[i]==reponse)
-  		  {
-  		   verif="Bonne reponse " + reponse + "\n";
-  		   return verif;
-  		  }
-  		  else
-  		   verif="Bonne reponse " + reponse + "\n";
-  		  return verif;
-		}
-		
-	
-    return reponse;
-  }*/
-  
-  
-  public static boolean contien(String[] reponses, String reponse) 
-  {
-	    for (String rep : reponses) 
-	    {
-	        if (rep.equals(reponse)) 
-	        {
-	            return true;
-	        }
-	    }
-	    return false;
+  public void recupeObjet(int position) 
+	{									
+			switch(position)
+			{
+			case 0: System.out.println("Vous avez recuperé la clé de la cellule"); break;
+			case 1: System.out.println("Vous avez recuperé la clé du bureau du commandant"); break;
+			case 2: System.out.println("Vous avez recuperé la clé de la cantine"); break;
+			case 3: System.out.println("Vous avez recuperé la clé de la salle de pause"); break;
+			case 4: System.out.println("Vous avez recuperé la carte"); break;
+			case 5: System.out.println("Vous avez recuperé le téléphone"); break;
+			case 6: System.out.println("Vous avez recuperé la pelle"); break;
+			case 7: System.out.println("Vous avez recuperé la boisson energisante"); break;
+			case 8: System.out.println("Vous avez recuperé le sac"); break;
+			}
 	}
-  public static String VerifiReponse(String reponse) 
-  {
-	  if (contien(Enigme.reponses, reponse)) {
-		    System.out.println("Bonne réponse "+ reponse + "\n");
-		} else {
-		    System.out.println("Mauvaise réponse " + reponse + "\n");
-		}
+	
+  public void seDeplacer(String commande) {
+	  switch(commande) {
+	  case "B": this.Position=1; break;
+	  case "C": this.Position=2; break;
+	  case "S": this.Position=3; break;
+	  case "P1": this.Position=4; break;
+	  case "P2": this.Position=5; break;
+	  case "P3": this.Position=6; break;
+	  default: System.out.println("Commande invalide");
+	  }
 	  
-	  return reponse;
-	    
-	}
-  
-  
+	  
+  }
+	
+
 
   
-	
 	
 
 
 }
-
