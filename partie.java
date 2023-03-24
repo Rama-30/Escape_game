@@ -1,5 +1,6 @@
 package game;
 
+import map.Zone;
 import tools.Enigme;
 
 public class Partie {
@@ -18,26 +19,29 @@ public class Partie {
 		
 	}
 	
-	public void sauvegarder(){
-		// Code de sauvegarde
-	}
 	
 
 	public void passerAuNiveauSuivant(){
 		this.niveau++;
 	}
 	
-	public void changerZone(){
-		this.position++;
-	}
+	
 	
 		
-	public void jouer() {
+	public void jouer(int position) {
 		// appeler la méthode our s'authentifier
 		Partie partie = new Partie(); 
-		partie.enigmes.repondre_enigme(partie.niveau);
+		//enigmes.repondre_enigme(partie.niveau);
+		int i=0;
+		System.out.println("Vous est dans :  "+zone.LesZones[this.position]);
+		while(i<zone.LesZones.length)
+		{
+			
+			
+			
+		}
 		
-		if()
+		
 	
 	}
 }
