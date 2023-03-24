@@ -1,17 +1,18 @@
 package tools;
 
 import map.Zone;
+import player.Joueur;
 
 public class Objet {
 
-	private String[] mesObjets;
-	private int nbrObjet=8;
+	private static String[] mesObjets; // tableau d'objet 
+	private static int nbrObjet=9;
 	public Zone MaZone;
 	
 	
-	public Objet() {
+	public static void initObjet() {
 		
-		mesObjets = new String[this.nbrObjet];
+		mesObjets = new String[nbrObjet];
 		
 		mesObjets[0]="cléCellule";
 		mesObjets[1]="cléBureauCommandant";
@@ -37,8 +38,8 @@ public class Objet {
 		return nbrObjet;
 	}
 	
-	public void afficherLobjet(int position) {
-		if (position>=0 && position<this.nbrObjet)
+	public static void afficherLobjet(int position) {
+		if (position>=0 && position<10)
 		{
 			System.out.println("L'objet est : "+mesObjets[position]+"\n");
 		}
@@ -48,9 +49,9 @@ public class Objet {
 	
 	
 
-	public boolean recupeObjet(int position) // affichage de l'objet qu'il a recuperé, retourne vrai si objet
+	public static boolean recupeObjet(int position) // affichage de l'objet qu'il a recuperé, retourne vrai si objet
 	{									//recuperé besoin pour l'inventaire
-		if (ressoudreEnigmes==true)
+		if (Joueur.repondreEnigme()==true)
 		{
 			switch(position)
 			{
