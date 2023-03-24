@@ -1,7 +1,7 @@
 package tools;
 
 import java.util.Random;
-import java.util.Scanner;
+
 
 public class Enigme {
 	public static final String[] ENIGMES = new String[15];
@@ -84,31 +84,6 @@ public class Enigme {
 		return index;
 
 	}
-
 	
 	
-	public boolean est_correcte(String reponseJoueur) {
-		return reponseJoueur.equals(REPONSES[indice]);
-	}
-
-	public void repondre_enigme(int niveau) {
-	    indice = rendIndiceEnigmeParSonNiveau(niveau);
-	    System.out.println(ENIGMES[indice]);
-	    int cpt = 1;
-	    Scanner input = new Scanner(System.in);
-	    String reponse_joueur = input.nextLine();
-
-	    while (cpt <2 && !est_correcte(reponse_joueur)) {
-	        System.out.println("************* Mauvaise réponse.***************\nVeuillez réessayer.");
-	        reponse_joueur = input.nextLine();
-	        cpt++;
-	    }
-	    
-	    if (est_correcte(reponse_joueur)) {
-	        System.out.println("**************Bonne réponse !!!**************");
-	    } else {
-	        System.out.println("************** Mauvaise réponse.***************");
-	        System.out.println("Désolé, vous avez réessayé plus de 2 fois.\n****Vous avez perdu.****");
-	    }
-	}
 }
