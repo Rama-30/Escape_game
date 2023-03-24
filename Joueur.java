@@ -1,3 +1,4 @@
+
 package player;
 
 import java.util.Scanner;
@@ -11,15 +12,9 @@ public class Joueur
 	private String Nom;
 	private String PassWord;
 	public Personnage MonPersonnage;
+	private Enigme enigmes;
 	
 	
-	public Joueur(String nom, String passWord) {
-		this.Nom = nom;
-		this.PassWord = passWord;
-		MonPersonnage = new Personnage();
-	}
-
-
 	public String getNom() {
 		return this.Nom;
 	}
@@ -39,36 +34,38 @@ public class Joueur
 		this.PassWord = passWord;
 	}
 	
-	public static boolean repondreEnigme()
-	{
-		Scanner Saisi =  new Scanner(System.in);
-		System.out.println("------> SAISISEZ VOTRE REPONSE <-------\n");
-		
-		String reponse=Saisi.nextLine();
-		
-		if(Personnage.contien(Enigme.reponses, reponse)==true)
-			{
-			Personnage.VerifiReponse(reponse);
-			return true;
-			}
-		else 
-			Personnage.VerifiReponse(reponse);
-			return false;
+	public boolean est_correcte(String reponseJoueur, int niveau) {
+		 int indice = enigmes.rendIndiceEnigmeParSonNiveau(niveau);
+		return reponseJoueur.equals(enigmes.REPONSES[indice]);
+	}
+
+	
+	
+	public  void repondre_enigme(int niveau) {
+		int indice = enigmes.rendIndiceEnigmeParSonNiveau(niveau);
+	    System.out.println(enigmes.ENIGMES[indice]);
+	    int cpt = 1;
+	    Scanner input = new Scanner(System.in);
+	    String reponse_joueur = input.nextLine();
+
+	    while (cpt <2 && !est_correcte(reponse_joueur,  niveau)) {
+	        System.out.println("************* Mauvaise réponse.***************\nVeuillez réessayer.");
+	        reponse_joueur = input.nextLine();
+	        cpt++;
+	    }
+	    
+	    if (est_correcte(reponse_joueur, niveau)) {
+	        System.out.println("**************Bonne réponse !!!**************");
+	    } else {
+	        System.out.println("************** Mauvaise réponse.***************");
+	        System.out.println("Désolé, vous avez réessayé plus de 2 fois.\n****Vous avez perdu.****");
+	    }
 	}
 	
 	
-	
-	
-	// méthode position
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	public void sauvegarder(){
+		// Code de sauvegarde
+	}
 	
 	
 	
