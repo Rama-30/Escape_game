@@ -1,5 +1,7 @@
 package tools;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -15,7 +17,7 @@ public class Enigme {
 		initReponses();
 	}
 
-	private void initEnigmes() {
+	private static void initEnigmes() {
 
 		ENIGMES[0] = "On peut me trouver au fond d’un bateau de pêche ou au milieu d’un court de tennis.\r\n"
 				+ "Qui suis-je donc ?\r\n" + "A. Ancre B. poisson\r\n" + "C. Filet D. humain";
@@ -49,7 +51,7 @@ public class Enigme {
 
 	}
 
-	public void initReponses() {
+	public static void initReponses() {
 
 		REPONSES[0] = "C";
 		REPONSES[1] = "D";
@@ -70,20 +72,31 @@ public class Enigme {
 	}
 
 	public int rendIndiceEnigmeParSonNiveau(int niveau) {
-		Random rand = new Random();
-		int index;
-		if (niveau == 1) {
-			index = rand.nextInt(4);
-		} else {
-			if (niveau == 2) {
-				index = 4 + rand.nextInt(9);
-			} else {
-				index = 9 + rand.nextInt(14);
-			}
-		}
-		return index;
+	    Random rand = new Random();
+	    int index;
+	    List<Integer> indices = new ArrayList<Integer>();
 
+	    if (niveau == 1) {
+	        index = rand.nextInt(5); 
+	        indices.add(index);
+	    } else if (niveau == 2) {
+	        index = 4 + rand.nextInt(6);
+	        while (indices.contains(index)) {
+	            index = 4 + rand.nextInt(6);
+	        }
+	        indices.add(index);
+	    } else if (niveau == 3) {
+	        index = 9 + rand.nextInt(6);
+	        while (indices.contains(index)) {
+	            index = 9 + rand.nextInt(6);
+	        }
+	        indices.add(index);
+	    } else {
+	        // Niveau invalide
+	        index = -1;
+	    }
+
+	    return index;
 	}
-	
 	
 }
