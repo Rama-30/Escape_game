@@ -1,36 +1,31 @@
 package tools;
-import java.util.Random;
+
 import java.util.Scanner;
 
 public class Devinette {
+	
+    public static void jeuDeDevinette(){
+        int nombreAleatoire = (int) (Math.random() * 100) + 1;
+        Scanner input = new Scanner(System.in);
+        int tentative = 0;
+        int guess = 0;
 
-
-	        Random random = new Random();
-	        int nombreAleatoire = random.nextInt(100) + 1;
-	        Scanner scanner = new Scanner(System.in);
-	        int nombrePropose = 0;
-	        int nombreEssais = 0;
-	        boolean trouve = false;
-
-	        System.out.println("Je pense à un nombre entre 1 et 100. Devinez-le !");
-
-	        while (!trouve) {
-	            System.out.print("Proposez un nombre : ");
-	            nombrePropose = scanner.nextInt();
-	            nombreEssais++;
-
-	            if (nombrePropose == nombreAleatoire) {
-	                trouve = true;
-	                System.out.println("Bravo ! Vous avez trouvé le nombre en " + nombreEssais + " essais.");
-	            } else if (nombrePropose < nombreAleatoire) {
-	                System.out.println("Le nombre que je pense est plus grand que " + nombrePropose + ".");
-	            } else {
-	                System.out.println("Le nombre que je pense est plus petit que " + nombrePropose + ".");
-	            }
-	        }
-
-	        scanner.close();
-	    }
-
-	}
+        System.out.println("Bienvenue dans le jeu de devinette! Trouvez un nombre compris entre 1 et 100.");
+        
+        while (guess != nombreAleatoire) {
+            System.out.print("Entrez votre devinette : ");
+            guess = input.nextInt();
+            input.nextLine();
+            tentative++;
+            
+            if (guess < nombreAleatoire) {
+                System.out.println("Trop petit.");
+            } else if (guess > nombreAleatoire) {
+                System.out.println("Trop grand.");
+            } else {
+                System.out.println("Bravo! Vous avez trouvé le nombre en " + tentative + " tentatives.\n");
+            }
+        }
+        
+    }
 }
