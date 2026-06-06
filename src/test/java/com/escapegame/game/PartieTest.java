@@ -37,7 +37,8 @@ class PartieTest {
                 () -> executerPartie(entree));
 
         assertTrue(sortie.contains("Inscription"), "l'inscription doit s'exécuter");
-        assertTrue(sortie.contains("Cellule"), "le jeu doit démarrer après l'authentification");
+        assertTrue(sortie.toLowerCase().contains("cellule"),
+                "le jeu doit démarrer après l'authentification");
         assertTrue(sortie.contains("PARTIE PERDUE"), "la partie doit se terminer proprement");
     }
 

@@ -11,6 +11,8 @@ import java.util.Random;
  */
 public class Devinette {
 
+    private static final int TENTATIVES_MAX = 10;
+
     private final EntreeSortie console;
     private final Random random;
 
@@ -23,26 +25,28 @@ public class Devinette {
         this.random = random;
     }
 
-    /** Joue une partie complète et renvoie le nombre de tentatives. */
-    public int jouer() {
+    /**
+     * Joue une partie : le joueur dispose de {@link #TENTATIVES_MAX} tentatives.
+     * Renvoie {@code true} s'il trouve le nombre, {@code false} s'il épuise ses tentatives.
+     */
+    public boolean jouer() {
         int cible = 1 + random.nextInt(100);
-        int tentatives = 0;
-        int proposition;
 
-        console.afficher("Trouvez un nombre compris entre 1 et 100.");
-        do {
-            console.afficherSansSaut("Votre proposition : ");
-            proposition = console.lireEntier();
-            tentatives++;
+        console.afficher("Trouvez un nombre compris entre 1 et 100 pour le déverrouiller. Vous avez "
+                + TENTATIVES_MAX + " tentatives.");
+        for (int tentative = 1; tentative <= TENTATIVES_MAX; tentative++) {
+            console.afficherSansSaut("Proposition " + tentative + "/" + TENTATIVES_MAX + " : ");
+            int proposition = console.lireEntier();
 
-            if (proposition < cible) {
-                console.afficher("Trop petit.");
-            } else if (proposition > cible) {
-                console.afficher("Trop grand.");
+            if (proposition == cible) {
+                console.afficher("Bravo ! Trouvé en " + tentative + " tentative(s).");
+                return true;
             }
-        } while (proposition != cible);
+            console.afficher(proposition < cible ? "Trop petit." : "Trop grand.");
+        }
 
-        console.afficher("Bravo ! Trouvé en " + tentatives + " tentative(s).");
-        return tentatives;
+        console.afficher("Vous avez épuisé vos " + TENTATIVES_MAX
+                + " tentatives. Le bon nombre était " + cible + ".");
+        return false;
     }
 }

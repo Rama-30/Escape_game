@@ -72,15 +72,18 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
     private static final Color GRIS = new Color(150, 150, 160);
 
     /** Délai entre deux caractères de l'effet machine à écrire. */
-    private static final int DELAI_FRAPPE_MS = 11;
+    private static final int DELAI_FRAPPE_MS = 70;
     private static final int TAILLE_TEXTE = 16;
+
+    /** Pause sur le texte (le temps de lire) avant de passer à l'étape suivante. */
+    private static final int PAUSE_ETAPE_MS = 4000;
 
     private final PanneauImage panneauImage = new PanneauImage();
     private final JTextPane zoneTexte = new JTextPane();
     private final JTextField champSaisie = new JTextField();
     private final JButton boutonValider = new JButton("Valider");
 
-    private final ImagesZones images = new ImagesZones();
+    private final com.escapegame.ui.ImagesZones images = new com.escapegame.ui.ImagesZones();
     private final BlockingQueue<String> fileSaisie = new LinkedBlockingQueue<>();
 
     // Styles de texte (police soignée + code couleur).
@@ -96,6 +99,7 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
     private AttributeSet styleFrappe;
     private CountDownLatch frappeTerminee;
     private volatile boolean toutAfficher;
+    private volatile boolean premiereEtape = true;
 
     public FenetreJeu() {
         super("Escape Game — L'Évasion");
@@ -295,19 +299,53 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
     public void afficherZone(int position) {
         BufferedImage img = images.pourZone(position);
         String titre = Zone.nom(position);
-        SwingUtilities.invokeLater(() -> panneauImage.changerZone(img, titre));
+        // On lance d'abord la transition (fondu + carton-titre)...
+        SwingUtilities.invokeLater(() -> {
+            separerEtape();
+            panneauImage.changerZone(img, titre);
+        });
+        // ...puis on marque la pause : l'animation se joue pendant ce temps, et le joueur
+        // a le temps de lire avant que le texte de la nouvelle étape ne s'écrive.
+        // (Pas de pause tout au début de la partie.) Appelé sur le thread moteur, l'EDT reste libre.
+        if (premiereEtape) {
+            premiereEtape = false;
+        } else {
+            pauseEtape();
+        }
     }
 
-    /** Choisit la couleur du message : vert pour une réussite, rouge pour un échec. */
+    /** Pause de lecture, interruptible par un clic (accélération). */
+    private void pauseEtape() {
+        long fin = System.currentTimeMillis() + PAUSE_ETAPE_MS;
+        while (System.currentTimeMillis() < fin && !toutAfficher) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+
+    /** Insère deux lignes vides entre deux étapes (zones) du jeu. */
+    private void separerEtape() {
+        StyledDocument doc = zoneTexte.getStyledDocument();
+        if (doc.getLength() > 0) {
+            ajouterTexte("\n\n", styleNormal);
+        }
+    }
+
+    /** Choisit la couleur du message : rouge pour un échec, vert pour une réussite. */
     private AttributeSet stylePour(String message) {
         String m = message.toLowerCase();
-        if (contient(m, "bravo", "bonne réponse", "félicit", "récupér", "réussi",
-                "montez à bord", "gagnez", "s'ouvre", "les trois clés")) {
-            return stylePositif;
-        }
-        if (contient(m, "mauvaise", "perdue", "désolé", "invalide", "reste close", "repris",
-                "perdez", "indéchiffrable", "verrouillé", "alarme", "trop de temps")) {
+        // Échec d'abord : un message d'échec a priorité même s'il contient un mot « positif ».
+        if (contient(m, "perdue", "perdu", "raté", "reste close", "alarme", "repris", "reprennent",
+                "verrouillé", "indéchiffrable", "perdez", "trop de temps", "désolé", "mauvais")) {
             return styleNegatif;
+        }
+        if (contient(m, "bravo", "bonne réponse", "réussi", "récupér", "montez à bord",
+                "gagnez", "s'ouvre", "cède", "clés en poche", "libres")) {
+            return stylePositif;
         }
         return styleNormal;
     }
