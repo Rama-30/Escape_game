@@ -159,8 +159,14 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
         SwingUtilities.invokeLater(() -> {
             FenetreJeu fenetre = new FenetreJeu();
             fenetre.setVisible(true);
+            fenetre.afficherAccueil();
             fenetre.demarrerPartie();
         });
+    }
+
+    /** Affiche l'écran d'accueil (image-titre) avant le début de la partie. */
+    private void afficherAccueil() {
+        panneauImage.afficherAccueil(images.accueil());
     }
 
     private void demarrerPartie() {
@@ -310,6 +316,14 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
 
         PanneauImage() {
             setBackground(Color.BLACK);
+        }
+
+        /** Affiche l'image d'accueil en fondu (sans surimpression : l'image porte son titre). */
+        void afficherAccueil(BufferedImage image) {
+            this.imagePrecedente = null;
+            this.imageActuelle = image;
+            this.alphaFondu = 0f;
+            demarrerFondu();
         }
 
         void changerZone(BufferedImage image, String titre) {
