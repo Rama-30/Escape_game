@@ -1,0 +1,72 @@
+Transcript d'une partie gagnante (les saisies du joueur sont indiquées entre [crochets]).
+
+===== ESCAPE GAME : L'Évasion =====
+1) Se connecter
+2) Créer un compte
+Votre choix : [2]
+
+--- Inscription ---
+Prénom : [Marie]
+Nom : [Curie]
+Pseudo : [marie]
+Mot de passe : [radium]
+Compte créé. Bienvenue Marie !
+
+Vous êtes incarcéré à tort. Votre fille est retenue dans un hangar.
+Évadez-vous, traversez le vieux-port, et allez la libérer.
+À chaque énigme, vous avez 3 tentatives.
+
+Vous êtes dans la Cellule.
+Résolvez l'énigme pour ouvrir la porte.
+Trois poissons sont dans un seau, l'un d'entre eux meurt, combien en reste-t-il ?
+  A. 2 poissons   B. 3 poissons   C. 1 poisson   D. 0 poisson
+Votre réponse : [B]
+Bonne réponse !
+Bravo, vous sortez de la cellule !
+
+Trois clés sont cachées dans la prison. Récupérez-les toutes.
+Salles restantes :
+  - le Bureau du commandant
+  - la Cantine
+  - la Salle de pause
+Tapez B (bureau), C (cantine) ou S (salle de pause) : [B]
+Vous fouillez le Bureau du commandant.
+On peut me trouver au fond d'un bateau de pêche ou au milieu d'un court de tennis.
+Qui suis-je ?
+  A. Ancre   B. Poisson   C. Filet   D. Humain
+Votre réponse : [C]
+Bonne réponse !
+Vous récupérez la clé trouvée dans le Bureau du commandant.
+
+...(récupération des deux autres clés)...
+
+Vous avez les trois clés. Vous vous évadez de la prison !
+
+Au vieux-port, trois pontons. Un seul mène au bon bateau.
+Tapez 1, 2 ou 3 pour choisir un ponton (essai 1/3) : [2]
+Bon ponton ! Vous montez à bord.
+
+Sur le Bateau, un coffre verrouillé par un cadenas à chiffre.
+Trouvez un nombre compris entre 1 et 100.
+Votre proposition : [42]
+Bravo ! Trouvé en 1 tentative(s).
+Le coffre s'ouvre. Déchiffrez maintenant la carte codée.
+...(énigme + forêt : pelle, boisson énergisante, sac)...
+
+Dernière étape : le Hangar, où votre fille est retenue.
+C'est le jour de la paie. La poule reçoit 7 euros, l'abeille 21, l'araignée 28.
+Combien reçoit le chien ?
+Votre réponse : [14]
+Bonne réponse !
+
+********** FÉLICITATIONS, MARIE ! **********
+Vous libérez votre fille et gagnez la partie.
+Objets récupérés :
+  - la clé trouvée dans le Bureau du commandant
+  - la clé trouvée dans la Cantine
+  - la clé trouvée dans la Salle de pause
+  - la carte codée
+  - le téléphone
+  - la pelle
+  - la boisson énergisante
+  - le sac

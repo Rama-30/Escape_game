@@ -1,0 +1,17 @@
+# Build
+target/
+*.class
+
+# Données runtime (comptes joueurs)
+data/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
