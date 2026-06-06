@@ -10,7 +10,9 @@ Projet académique réalisé en équipe de 4, **repris et retravaillé** pour le
 correction des bugs bloquants, restructuration en architecture propre, moteur découplé de
 l'interface (console **et** graphique), build Maven et tests automatisés.
 
-![Aperçu de l'interface — carton-titre de zone et texte qui s'écrit lettre par lettre](docs/apercu.png)
+![Écran d'accueil du jeu](docs/accueil-apercu.png)
+
+![En jeu — carton-titre de zone et texte qui s'écrit lettre par lettre](docs/apercu.png)
 
 ---
 

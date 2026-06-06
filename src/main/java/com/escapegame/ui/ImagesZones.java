@@ -63,13 +63,18 @@ public class ImagesZones {
         return cache.computeIfAbsent(position, this::construire);
     }
 
+    /** Image de l'écran d'accueil (affichée au lancement, avant la première zone). */
+    public BufferedImage accueil() {
+        BufferedImage img = chargerRessource("/images/accueil.jpg");
+        return (img != null) ? img : genererVisuel(7); // repli : un visuel sombre
+    }
+
     private BufferedImage construire(int position) {
-        BufferedImage photo = chargerPhoto(position);
+        BufferedImage photo = chargerRessource(PHOTOS.get(position));
         return (photo != null) ? photo : genererVisuel(position);
     }
 
-    private BufferedImage chargerPhoto(int position) {
-        String chemin = PHOTOS.get(position);
+    private BufferedImage chargerRessource(String chemin) {
         if (chemin == null) {
             return null;
         }
