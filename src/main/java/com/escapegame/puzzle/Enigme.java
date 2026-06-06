@@ -1,20 +1,30 @@
 package com.escapegame.puzzle;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Banque d'énigmes à choix multiple (ou réponse libre) et leurs solutions.
  *
- * <p>Correction par rapport à la version d'origine : la sélection d'un indice par niveau
- * pouvait renvoyer des valeurs hors des bornes du tableau ({@code 9 + rand.nextInt(14)}
- * allait jusqu'à 22 pour un tableau de 15 cases). Les trois niveaux pointent désormais vers
- * des sous-plages disjointes et valides.</p>
+ * <p>Corrections par rapport à la version d'origine :</p>
+ * <ul>
+ *   <li>la sélection d'un indice par niveau pouvait renvoyer des valeurs hors des bornes
+ *       du tableau ({@code 9 + rand.nextInt(14)} allait jusqu'à 22 pour 15 cases) ; les trois
+ *       niveaux pointent désormais vers des sous-plages disjointes et valides ;</li>
+ *   <li>le tirage se faisait <i>avec remise</i>, si bien qu'une même énigme pouvait revenir
+ *       plusieurs fois dans une partie ; il est désormais <i>sans remise</i> (chaque énigme
+ *       n'apparaît qu'une fois tant que la plage du niveau n'est pas épuisée).</li>
+ * </ul>
  */
 public class Enigme {
 
     private final String[] enigmes = new String[15];
     private final String[] reponses = new String[15];
     private final Random random;
+    private final Set<Integer> dejaUtilisees = new HashSet<>();
 
     public Enigme() {
         this(new Random());
@@ -90,14 +100,33 @@ public class Enigme {
     }
 
     /**
-     * Renvoie l'indice d'une énigme tirée au hasard dans la sous-plage du niveau.
+     * Renvoie l'indice d'une énigme tirée au hasard dans la sous-plage du niveau,
+     * <b>sans remise</b> : une énigme déjà servie n'est pas reproposée tant que la plage
+     * du niveau n'est pas entièrement épuisée (auquel cas la plage est réinitialisée).
      * Niveaux 1, 2, 3 → plages [0..4], [5..9], [10..14]. Tout autre niveau est ramené
      * dans [1..3].
      */
     public int indicePourNiveau(int niveau) {
         int n = Math.max(1, Math.min(3, niveau));
-        int debut = (n - 1) * 5;          // 0, 5 ou 10
-        return debut + random.nextInt(5); // + 0..4
+        int debut = (n - 1) * 5; // 0, 5 ou 10
+
+        List<Integer> libres = new ArrayList<>();
+        for (int i = debut; i < debut + 5; i++) {
+            if (!dejaUtilisees.contains(i)) {
+                libres.add(i);
+            }
+        }
+        // Plage épuisée : on la réinitialise pour pouvoir continuer à jouer.
+        if (libres.isEmpty()) {
+            for (int i = debut; i < debut + 5; i++) {
+                dejaUtilisees.remove(i);
+                libres.add(i);
+            }
+        }
+
+        int indice = libres.get(random.nextInt(libres.size()));
+        dejaUtilisees.add(indice);
+        return indice;
     }
 
     /** Comparaison tolérante : insensible à la casse et aux espaces de bord. */
