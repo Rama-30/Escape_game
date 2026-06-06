@@ -12,7 +12,7 @@ l'interface (console **et** graphique), build Maven et tests automatisés.
 
 ![Écran d'accueil du jeu](docs/accueil-apercu.png)
 
-![En jeu — carton-titre de zone et texte qui s'écrit lettre par lettre](docs/apercu.png)
+![En jeu — texte soigné et code couleur (récit, invite, réussite, échec), écrit lettre par lettre](docs/apercu.png)
 
 ---
 
@@ -57,6 +57,9 @@ Un déroulé complet d'une partie gagnante est aussi disponible dans
 Chaque énigme laisse **3 tentatives** ; les échecs mènent à une vraie fin de partie.
 À chaque zone, l'interface graphique affiche une **illustration dédiée** sur fond noir
 (10 visuels couvrant toutes les zones, les 3 pontons partageant la même vue du vieux-port).
+
+**Présentation du texte :** police serif soignée, interligne aéré et **code couleur** selon
+le type de message (récit, invite de saisie, réussite, échec).
 
 **Animations :** le texte s'écrit **lettre par lettre** (un clic sur le texte ou l'image
 accélère l'affichage) et chaque changement d'étape se fait en **fondu enchaîné**, avec le
