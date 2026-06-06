@@ -2,7 +2,9 @@ package com.escapegame.puzzle;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -45,6 +47,37 @@ class EnigmeTest {
             assertTrue(enigme.indicePourNiveau(0) <= 4, "niveau 0 -> plage niveau 1");
             assertTrue(enigme.indicePourNiveau(99) >= 10, "niveau 99 -> plage niveau 3");
         }
+    }
+
+    @Test
+    void aucuneEnigmeNeSeRepeteAvantEpuisementDuNiveau() {
+        Enigme enigme = new Enigme(new Random(3));
+        // Une plage compte 5 énigmes : 5 tirages doivent donner 5 indices distincts.
+        for (int niveau = 1; niveau <= 3; niveau++) {
+            Set<Integer> vus = new HashSet<>();
+            for (int i = 0; i < 5; i++) {
+                assertTrue(vus.add(enigme.indicePourNiveau(niveau)),
+                        "énigme répétée au niveau " + niveau + " avant épuisement");
+            }
+            // La 6e demande réinitialise la plage : l'indice doit rester valide.
+            int apresReset = enigme.indicePourNiveau(niveau);
+            assertTrue(vus.contains(apresReset), "après reset, indice hors de la plage du niveau");
+        }
+    }
+
+    @Test
+    void uneSequenceDePartieNeRepeteAucuneEnigme() {
+        // Reproduit la consommation d'une partie : niveau 1 ×4, niveau 2 ×4, niveau 3 ×1.
+        Enigme enigme = new Enigme(new Random(99));
+        Set<Integer> tous = new HashSet<>();
+        for (int i = 0; i < 4; i++) {
+            assertTrue(tous.add(enigme.indicePourNiveau(1)), "répétition au niveau 1");
+        }
+        for (int i = 0; i < 4; i++) {
+            assertTrue(tous.add(enigme.indicePourNiveau(2)), "répétition au niveau 2");
+        }
+        assertTrue(tous.add(enigme.indicePourNiveau(3)), "répétition au niveau 3");
+        assertEquals(9, tous.size(), "9 énigmes distinctes attendues sur une partie");
     }
 
     @Test
