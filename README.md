@@ -53,8 +53,8 @@ Un déroulé complet d'une partie gagnante est aussi disponible dans
 | 6 | Le hangar | Énigme finale — libérer votre fille |
 
 Chaque énigme laisse **3 tentatives** ; les échecs mènent à une vraie fin de partie.
-À chaque zone, l'interface graphique affiche une image d'ambiance (3 photos d'origine,
-les autres zones étant rendues à la volée en visuels stylisés).
+À chaque zone, l'interface graphique affiche une **illustration dédiée** sur fond noir
+(10 visuels couvrant toutes les zones, les 3 pontons partageant la même vue du vieux-port).
 
 ---
 
@@ -69,14 +69,14 @@ src/main/java/com/escapegame/
 │   ├── EntreeSortie.java            ★ frontière moteur ↔ interface
 │   └── Console.java                 implémentation console (un seul Scanner partagé)
 ├── ui/
-│   ├── FenetreJeu.java              ★ interface Swing (implémente EntreeSortie)
-│   └── ImagesZones.java             photos + visuels générés par zone
+│   ├── FenetreJeu.java              ★ interface Swing sombre (implémente EntreeSortie)
+│   └── ImagesZones.java             illustration par zone (+ visuel de secours généré)
 ├── game/Partie.java                 moteur de jeu (boucle, progression, fin)
 ├── player/Joueur.java, Inventaire.java
 ├── world/Zone.java                  les zones traversées
 ├── puzzle/Enigme.java, Devinette.java, Objet.java
 └── auth/ServiceAuthentification.java, DepotJoueurs.java
-src/main/resources/images/           bureau.jpg, cantine.jpg, bateau.jpg
+src/main/resources/images/           10 illustrations de zones (cellule, bureau, …, hangar)
 ```
 
 ### 🔌 Moteur découplé de l'interface

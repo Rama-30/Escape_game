@@ -18,20 +18,28 @@ import java.util.Map;
 /**
  * Fournit une image pour chaque zone du jeu.
  *
- * <p>Trois zones disposent d'une vraie photo (récupérée du projet d'origine, embarquée
- * dans le jar) ; les autres sont rendues à la volée en panneaux dégradés portant le nom
- * de la zone. Toutes les images ont ainsi le même format, sans dépendance externe.</p>
+ * <p>Chaque zone dispose d'une illustration dédiée, embarquée dans le jar
+ * ({@code src/main/resources/images}). Les trois pontons partagent la même vue du
+ * vieux-port. Si une image venait à manquer, un visuel dégradé portant le nom de la zone
+ * est généré à la volée — garde-fou qui évite tout plantage.</p>
  */
 public class ImagesZones {
 
-    private static final int LARGEUR = 800;
-    private static final int HAUTEUR = 460;
+    private static final int LARGEUR = 1000;
+    private static final int HAUTEUR = 563;
 
-    /** Photos disponibles, par position de zone. */
-    private static final Map<Integer, String> PHOTOS = Map.of(
-            1, "/images/bureau.jpg",
-            2, "/images/cantine.jpg",
-            7, "/images/bateau.jpg"
+    /** Illustration par position de zone (les pontons 4/5/6 partagent la même vue). */
+    private static final Map<Integer, String> PHOTOS = Map.ofEntries(
+            Map.entry(0, "/images/cellule.jpg"),
+            Map.entry(1, "/images/bureau.jpg"),
+            Map.entry(2, "/images/cantine.jpg"),
+            Map.entry(3, "/images/salle_de_pause.jpg"),
+            Map.entry(4, "/images/pontons.jpg"),
+            Map.entry(5, "/images/pontons.jpg"),
+            Map.entry(6, "/images/pontons.jpg"),
+            Map.entry(7, "/images/bateau.jpg"),
+            Map.entry(8, "/images/foret.jpg"),
+            Map.entry(9, "/images/hangar.jpg")
     );
 
     /** Deux couleurs de dégradé par zone, pour différencier les visuels générés. */

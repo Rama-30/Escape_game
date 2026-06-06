@@ -25,12 +25,14 @@ class ImagesZonesTest {
     }
 
     @Test
-    void lesPhotosEmbarqueesSontChargees() {
-        ImagesZones images = new ImagesZones();
-        // Zones 1, 2 et 7 ont de vraies photos (~800px de large), pas un visuel généré 460px.
-        for (int position : new int[]{1, 2, 7}) {
-            assertTrue(images.pourZone(position).getWidth() >= 700,
-                    "la photo de la zone " + position + " devrait être chargée");
+    void toutesLesIllustrationsSontEmbarquees() {
+        String[] fichiers = {
+                "cellule", "bureau", "cantine", "salle_de_pause",
+                "pontons", "bateau", "foret", "hangar"
+        };
+        for (String nom : fichiers) {
+            assertNotNull(getClass().getResource("/images/" + nom + ".jpg"),
+                    "image manquante dans le classpath : " + nom + ".jpg");
         }
     }
 
