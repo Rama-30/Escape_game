@@ -10,9 +10,16 @@ Projet académique réalisé en équipe de 4, **repris et retravaillé** pour le
 correction des bugs bloquants, restructuration en architecture propre, moteur découplé de
 l'interface (console **et** graphique), build Maven et tests automatisés.
 
+![Démo du jeu](docs/demo.gif)
+
+<details>
+<summary>Captures</summary>
+
 ![Écran d'accueil du jeu](docs/accueil-apercu.png)
 
 ![En jeu — texte soigné et code couleur (récit, invite, réussite, échec), écrit lettre par lettre](docs/apercu.png)
+
+</details>
 
 ---
 
