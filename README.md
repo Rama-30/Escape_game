@@ -10,7 +10,7 @@ Projet académique réalisé en équipe de 4, **repris et retravaillé** pour le
 correction des bugs bloquants, restructuration en architecture propre, moteur découplé de
 l'interface (console **et** graphique), build Maven et tests automatisés.
 
-![Aperçu de l'interface](docs/apercu.png)
+![Aperçu de l'interface — carton-titre de zone et texte qui s'écrit lettre par lettre](docs/apercu.png)
 
 ---
 
@@ -55,6 +55,10 @@ Un déroulé complet d'une partie gagnante est aussi disponible dans
 Chaque énigme laisse **3 tentatives** ; les échecs mènent à une vraie fin de partie.
 À chaque zone, l'interface graphique affiche une **illustration dédiée** sur fond noir
 (10 visuels couvrant toutes les zones, les 3 pontons partageant la même vue du vieux-port).
+
+**Animations :** le texte s'écrit **lettre par lettre** (un clic sur le texte ou l'image
+accélère l'affichage) et chaque changement d'étape se fait en **fondu enchaîné**, avec le
+nom de la zone qui apparaît brièvement en **carton-titre**.
 
 ---
 
