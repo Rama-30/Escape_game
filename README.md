@@ -1,14 +1,16 @@
 # 🔓 Escape Game — L'Évasion
 
-> Jeu d'évasion textuel en Java. Incarcéré à tort, vous devez vous évader de prison,
-> traverser le vieux-port et libérer votre fille retenue dans un hangar, en résolvant
-> une série d'énigmes.
+> Jeu d'évasion en Java, avec **interface graphique Swing**. Incarcéré à tort, vous devez
+> vous évader de prison, traverser le vieux-port et libérer votre fille retenue dans un
+> hangar, en résolvant une série d'énigmes.
 
-*A text-based escape room game in Java. (English summary below.)*
+*A Java escape room game with a Swing GUI. (English summary below.)*
 
 Projet académique réalisé en équipe de 4, **repris et retravaillé** pour le portfolio :
-correction des bugs bloquants, restructuration en architecture propre, build Maven et
-tests automatisés.
+correction des bugs bloquants, restructuration en architecture propre, moteur découplé de
+l'interface (console **et** graphique), build Maven et tests automatisés.
+
+![Aperçu de l'interface](docs/apercu.png)
 
 ---
 
@@ -20,8 +22,11 @@ Pré-requis : **JDK 17+** et **Maven 3.8+**.
 # Compiler, lancer les tests et produire le jar exécutable
 mvn clean package
 
-# Lancer le jeu
+# Lancer le jeu (interface graphique)
 java -jar target/escape-game.jar
+
+# Jouer en mode console (sans fenêtre)
+java -jar target/escape-game.jar --console
 
 # (ou directement, sans packager)
 mvn exec:java
@@ -29,8 +34,9 @@ mvn exec:java
 
 Le jeu tourne **immédiatement après un `git clone`** : aucune base de données ni
 configuration externe n'est nécessaire (voir [Authentification](#-authentification)).
+En l'absence d'affichage (serveur, CI), le jeu bascule automatiquement en mode console.
 
-Un déroulé complet d'une partie gagnante est disponible dans
+Un déroulé complet d'une partie gagnante est aussi disponible dans
 [`docs/transcript-partie.txt`](docs/transcript-partie.txt).
 
 ---
@@ -47,6 +53,8 @@ Un déroulé complet d'une partie gagnante est disponible dans
 | 6 | Le hangar | Énigme finale — libérer votre fille |
 
 Chaque énigme laisse **3 tentatives** ; les échecs mènent à une vraie fin de partie.
+À chaque zone, l'interface graphique affiche une image d'ambiance (3 photos d'origine,
+les autres zones étant rendues à la volée en visuels stylisés).
 
 ---
 
@@ -56,14 +64,28 @@ Layout Maven standard, package racine `com.escapegame` :
 
 ```
 src/main/java/com/escapegame/
-├── App.java                         point d'entrée
-├── io/Console.java                  E/S centralisées (un seul Scanner partagé)
+├── App.java                         point d'entrée (GUI par défaut, --console sinon)
+├── io/
+│   ├── EntreeSortie.java            ★ frontière moteur ↔ interface
+│   └── Console.java                 implémentation console (un seul Scanner partagé)
+├── ui/
+│   ├── FenetreJeu.java              ★ interface Swing (implémente EntreeSortie)
+│   └── ImagesZones.java             photos + visuels générés par zone
 ├── game/Partie.java                 moteur de jeu (boucle, progression, fin)
 ├── player/Joueur.java, Inventaire.java
 ├── world/Zone.java                  les zones traversées
 ├── puzzle/Enigme.java, Devinette.java, Objet.java
 └── auth/ServiceAuthentification.java, DepotJoueurs.java
+src/main/resources/images/           bureau.jpg, cantine.jpg, bateau.jpg
 ```
+
+### 🔌 Moteur découplé de l'interface
+
+Le moteur (`Partie`) ne dépend que de l'interface **`EntreeSortie`** (`afficher`,
+`lireLigne`, `lireEntier`, `afficherZone`…). Deux implémentations la fournissent :
+`Console` (terminal) et `FenetreJeu` (Swing). **La logique de jeu est identique** dans les
+deux modes. Côté graphique, le moteur tourne sur un thread dédié et les saisies transitent
+par une file bloquante alimentée par l'EDT — l'interface ne se fige jamais.
 
 ### 🔑 Authentification
 
@@ -80,15 +102,15 @@ La version rendue était injouable. Les correctifs principaux :
 
 | Problème d'origine | Correctif |
 |--------------------|-----------|
-| Chaque classe créait son `Scanner(System.in)` puis le **fermait** → `System.in` fermé pour tout le programme, crash à la 2ᵉ saisie | Une unique classe `Console` partagée, jamais fermée en cours de jeu |
+| Chaque classe créait son `Scanner(System.in)` puis le **fermait** → `System.in` fermé pour tout le programme, crash à la 2ᵉ saisie | E/S centralisées derrière `EntreeSortie` ; le `Scanner` console n'est jamais fermé en cours de jeu |
 | `Commande.se_deplacer()` : `while(true)` sans sortie | Boucle de jeu réécrite avec des conditions d'arrêt claires |
 | `trouverPonton()` : compteur d'essais jamais incrémenté → boucle infinie | Nombre d'essais limité et borné |
 | Sélection d'énigme `9 + rand.nextInt(14)` → index 22 sur un tableau de 15 → `ArrayIndexOutOfBoundsException` | Sous-plages par niveau disjointes et bornées |
 | Authentification MySQL : dépôt jamais instancié (NPE), colonnes SQL incohérentes, injection SQL | Persistance fichier zéro-config + mots de passe hashés |
-| `Design extends JFrame` (Swing inutile sur un jeu console) | Supprimé |
+| Interface visuelle rudimentaire (popups d'images séparés, la plupart des images manquantes) | Fenêtre Swing unique : image de zone + énigmes + saisie, moteur découplé de l'UI |
 
-Bénéfices transverses : code **testable** (entrée injectable), séparation des
-responsabilités (entité `Joueur` vs moteur `Partie`), et un dépôt nettoyé.
+Bénéfices transverses : code **testable** (interface d'E/S injectable), séparation des
+responsabilités, dépôt nettoyé et allégé.
 
 ---
 
@@ -98,27 +120,29 @@ responsabilités (entité `Joueur` vs moteur `Partie`), et un dépôt nettoyé.
 mvn test
 ```
 
-13 tests JUnit 5 couvrant : les bornes de sélection d'énigmes, la vérification tolérante
-des réponses, l'inscription/connexion et le hachage des mots de passe, la robustesse de
-la `Console`, et un test de bout en bout garantissant qu'une partie se termine **sans
-boucle infinie** (anti-régression des deux bugs majeurs).
+16 tests JUnit 5 couvrant : les bornes de sélection d'énigmes, la vérification tolérante
+des réponses, l'inscription/connexion et le hachage des mots de passe, la robustesse des
+E/S, le rendu des images de zones, et un test de bout en bout garantissant qu'une partie
+se termine **sans boucle infinie** (anti-régression des deux bugs majeurs).
 
 ---
 
 ## 🛠️ Stack technique
 
-Java 17 · Maven · JUnit 5 · `java.security.MessageDigest` (SHA-256).
+Java 17 · Maven · Swing (JDK) · JUnit 5 · `java.security.MessageDigest` (SHA-256).
 
 ---
 
 ## English summary
 
-A text-based escape room game in Java, originally a 4-person academic project, **reworked
-for portfolio use**. You escape from prison, cross the old port and free your daughter by
-solving riddles. The submitted version was unplayable; this rewrite fixes the blocking
-bugs (a shared `Scanner` that was being closed mid-game, infinite loops, an out-of-bounds
-puzzle picker, broken MySQL auth), restructures the code into clean packages, replaces the
-database with **zero-config file storage and SHA-256 hashed passwords**, and adds a Maven
-build with JUnit 5 tests.
+A Java escape room game with a **Swing GUI**, originally a 4-person academic project,
+**reworked for portfolio use**. You escape from prison, cross the old port and free your
+daughter by solving riddles. The submitted version was unplayable; this rewrite fixes the
+blocking bugs (a shared `Scanner` closed mid-game, infinite loops, an out-of-bounds puzzle
+picker, broken MySQL auth), restructures the code into clean packages, and **decouples the
+game engine from the UI** behind an `EntreeSortie` interface so the exact same engine runs
+in a Swing window or in the terminal (`--console`). Player accounts use **zero-config file
+storage with SHA-256 hashed passwords**, and the project ships a Maven build with JUnit 5
+tests.
 
 Run it with `mvn clean package && java -jar target/escape-game.jar`.

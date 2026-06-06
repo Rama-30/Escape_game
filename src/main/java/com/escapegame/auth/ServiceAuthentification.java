@@ -1,6 +1,6 @@
 package com.escapegame.auth;
 
-import com.escapegame.io.Console;
+import com.escapegame.io.EntreeSortie;
 
 /**
  * Gère l'inscription et la connexion d'un joueur via la {@link Console} partagée.
@@ -11,10 +11,10 @@ import com.escapegame.io.Console;
  */
 public class ServiceAuthentification {
 
-    private final Console console;
+    private final EntreeSortie console;
     private final DepotJoueurs depot;
 
-    public ServiceAuthentification(Console console, DepotJoueurs depot) {
+    public ServiceAuthentification(EntreeSortie console, DepotJoueurs depot) {
         this.console = console;
         this.depot = depot;
     }

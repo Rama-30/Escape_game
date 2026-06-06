@@ -3,6 +3,7 @@ package com.escapegame.game;
 import com.escapegame.auth.DepotJoueurs;
 import com.escapegame.auth.ServiceAuthentification;
 import com.escapegame.io.Console;
+import com.escapegame.io.EntreeSortie;
 import com.escapegame.player.Joueur;
 import com.escapegame.puzzle.Devinette;
 import com.escapegame.puzzle.Enigme;
@@ -24,7 +25,7 @@ public class Partie {
 
     private static final int ESSAIS_MAX = 3;
 
-    private final Console console;
+    private final EntreeSortie console;
     private final ServiceAuthentification authentification;
     private final Enigme enigmes;
     private final Devinette devinette;
@@ -37,8 +38,8 @@ public class Partie {
         this(new Console(), new DepotJoueurs(), new Random());
     }
 
-    /** Construction injectable, pour les tests (entrée scriptée, dépôt temporaire). */
-    public Partie(Console console, DepotJoueurs depot, Random random) {
+    /** Construction injectable : interface (console ou graphique), dépôt, aléa. */
+    public Partie(EntreeSortie console, DepotJoueurs depot, Random random) {
         this.console = console;
         this.authentification = new ServiceAuthentification(console, depot);
         this.enigmes = new Enigme(random);
@@ -88,6 +89,7 @@ public class Partie {
 
     // --- Zone 0 : la cellule ---
     private boolean etapeCellule() {
+        console.afficherZone(0);
         console.afficher("Vous êtes dans " + Zone.nom(0) + ".");
         console.afficher("Résolvez l'énigme pour ouvrir la porte.");
         if (!resoudreEnigme(1)) {
@@ -118,6 +120,7 @@ public class Partie {
                 console.afficher("Choix invalide.");
                 continue;
             }
+            console.afficherZone(position);
             console.afficher("Vous fouillez " + Zone.nom(position) + ".");
             if (!resoudreEnigme(1)) {
                 return perdu("Une alarme se déclenche, vous êtes repris.");
@@ -133,6 +136,7 @@ public class Partie {
 
     // --- Zones 4 à 6 : trouver le bon ponton ---
     private boolean etapeVieuxPort() {
+        console.afficherZone(4);
         console.afficher("Au vieux-port, trois pontons. Un seul mène au bon bateau.");
         int bonPonton = 1 + random.nextInt(3);
         for (int essai = 1; essai <= ESSAIS_MAX; essai++) {
@@ -150,6 +154,7 @@ public class Partie {
 
     // --- Zone 7 : le bateau ---
     private boolean etapeBateau() {
+        console.afficherZone(7);
         console.afficher("Sur " + Zone.nom(7) + ", un coffre verrouillé par un cadenas à chiffre.");
         devinette.jouer();
         console.afficher("Le coffre s'ouvre. Déchiffrez maintenant la carte codée.");
@@ -164,6 +169,7 @@ public class Partie {
 
     // --- Zone 8 : la forêt ---
     private boolean etapeForet() {
+        console.afficherZone(8);
         console.afficher("La carte vous mène à " + Zone.nom(8) + ".");
         String[] aRamasser = {"la pelle", "la boisson énergisante", "le sac"};
         for (String objet : aRamasser) {
@@ -179,6 +185,7 @@ public class Partie {
 
     // --- Zone 9 : le hangar (fin) ---
     private void etapeHangar() {
+        console.afficherZone(9);
         console.afficher("Dernière étape : " + Zone.nom(9) + ", où votre fille est retenue.");
         if (!resoudreEnigme(3)) {
             perdu("Le hangar reste verrouillé.");

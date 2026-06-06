@@ -1,6 +1,6 @@
 package com.escapegame.puzzle;
 
-import com.escapegame.io.Console;
+import com.escapegame.io.EntreeSortie;
 
 import java.util.Random;
 
@@ -11,14 +11,14 @@ import java.util.Random;
  */
 public class Devinette {
 
-    private final Console console;
+    private final EntreeSortie console;
     private final Random random;
 
-    public Devinette(Console console) {
+    public Devinette(EntreeSortie console) {
         this(console, new Random());
     }
 
-    public Devinette(Console console, Random random) {
+    public Devinette(EntreeSortie console, Random random) {
         this.console = console;
         this.random = random;
     }
