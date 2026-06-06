@@ -11,10 +11,17 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,10 +32,13 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -42,14 +52,11 @@ import java.util.concurrent.LinkedBlockingQueue;
  * donc le moteur {@link Partie} fonctionne sans modification. Le moteur s'exécute sur un
  * thread dédié ; les saisies transitent par une file bloquante alimentée par l'EDT.</p>
  *
- * <p>Deux animations rythment la partie :</p>
- * <ul>
- *   <li><b>texte lettre par lettre</b> : chaque message s'écrit caractère par caractère ;
- *       le thread moteur attend la fin de la frappe avant de continuer (un clic sur le
- *       texte ou l'image accélère l'affichage) ;</li>
- *   <li><b>transition de zone</b> : à chaque nouvelle étape, l'image change en fondu
- *       enchaîné et le nom de la zone apparaît brièvement en carton-titre.</li>
- * </ul>
+ * <p>Le texte est rendu dans un {@link JTextPane} stylé : police soignée, interligne aéré,
+ * marges, et code couleur selon le type de message (récit, invite, réussite, échec, saisie
+ * du joueur). Deux animations rythment la partie : le texte s'écrit lettre par lettre (le
+ * thread moteur attend la fin de la frappe ; un clic accélère l'affichage), et chaque
+ * changement d'étape se fait en fondu enchaîné avec un carton-titre de zone.</p>
  */
 public class FenetreJeu extends JFrame implements EntreeSortie {
 
@@ -59,22 +66,34 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
     private static final Color FOND = new Color(13, 13, 16);
     private static final Color FOND_CHAMP = new Color(28, 28, 34);
     private static final Color TEXTE = new Color(233, 233, 238);
-    private static final Color ACCENT = new Color(196, 132, 60);
+    private static final Color ACCENT = new Color(208, 150, 74);
+    private static final Color VERT = new Color(126, 197, 122);
+    private static final Color ROUGE = new Color(226, 122, 108);
+    private static final Color GRIS = new Color(150, 150, 160);
 
     /** Délai entre deux caractères de l'effet machine à écrire. */
     private static final int DELAI_FRAPPE_MS = 11;
+    private static final int TAILLE_TEXTE = 16;
 
     private final PanneauImage panneauImage = new PanneauImage();
-    private final JTextArea zoneTexte = new JTextArea();
+    private final JTextPane zoneTexte = new JTextPane();
     private final JTextField champSaisie = new JTextField();
     private final JButton boutonValider = new JButton("Valider");
 
     private final ImagesZones images = new ImagesZones();
     private final BlockingQueue<String> fileSaisie = new LinkedBlockingQueue<>();
 
+    // Styles de texte (police soignée + code couleur).
+    private AttributeSet styleNormal;
+    private AttributeSet stylePositif;
+    private AttributeSet styleNegatif;
+    private AttributeSet styleInvite;
+    private AttributeSet styleEcho;
+
     // État de la frappe en cours (manipulé uniquement sur l'EDT).
     private Timer timerFrappe;
     private String resteAFrapper = "";
+    private AttributeSet styleFrappe;
     private CountDownLatch frappeTerminee;
     private volatile boolean toutAfficher;
 
@@ -82,45 +101,46 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
         super("Escape Game — L'Évasion");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         construireInterface();
-        setMinimumSize(new Dimension(840, 760));
+        setMinimumSize(new Dimension(860, 780));
         pack();
         setLocationRelativeTo(null);
     }
 
     private void construireInterface() {
         getContentPane().setBackground(FOND);
-        panneauImage.setPreferredSize(new Dimension(820, 440));
+        panneauImage.setPreferredSize(new Dimension(840, 450));
+
+        construireStyles();
 
         zoneTexte.setEditable(false);
-        zoneTexte.setLineWrap(true);
-        zoneTexte.setWrapStyleWord(true);
-        zoneTexte.setFont(new Font("SansSerif", Font.PLAIN, 15));
         zoneTexte.setBackground(FOND);
         zoneTexte.setForeground(TEXTE);
         zoneTexte.setCaretColor(FOND);
-        zoneTexte.setSelectionColor(ACCENT);
+        zoneTexte.setSelectionColor(new Color(70, 60, 40));
         zoneTexte.setSelectedTextColor(Color.WHITE);
-        zoneTexte.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
+        zoneTexte.setMargin(new Insets(18, 24, 18, 24));
         zoneTexte.setToolTipText("Cliquez pour accélérer le texte");
 
         JScrollPane defilement = new JScrollPane(zoneTexte);
-        defilement.setPreferredSize(new Dimension(820, 200));
+        defilement.setPreferredSize(new Dimension(840, 210));
         defilement.setBorder(BorderFactory.createEmptyBorder());
         defilement.getViewport().setBackground(FOND);
+        defilement.getVerticalScrollBar().setUnitIncrement(16);
 
-        champSaisie.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        String policeUi = choisirPolice("Noto Sans", "DejaVu Sans", "Segoe UI", "SansSerif");
+        champSaisie.setFont(new Font(policeUi, Font.PLAIN, 15));
         champSaisie.setBackground(FOND_CHAMP);
         champSaisie.setForeground(TEXTE);
         champSaisie.setCaretColor(TEXTE);
         champSaisie.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(55, 55, 64), 1, true),
-                BorderFactory.createEmptyBorder(7, 10, 7, 10)));
+                BorderFactory.createLineBorder(new Color(60, 60, 70), 1, true),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
 
-        boutonValider.setFont(new Font("SansSerif", Font.BOLD, 14));
+        boutonValider.setFont(new Font(policeUi, Font.BOLD, 14));
         boutonValider.setBackground(ACCENT);
-        boutonValider.setForeground(new Color(20, 16, 10));
+        boutonValider.setForeground(new Color(22, 17, 10));
         boutonValider.setFocusPainted(false);
-        boutonValider.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+        boutonValider.setBorder(BorderFactory.createEmptyBorder(9, 20, 9, 20));
         boutonValider.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Entrée ou clic sur Valider → on soumet la saisie.
@@ -140,7 +160,7 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
 
         JPanel barreSaisie = new JPanel(new BorderLayout(10, 0));
         barreSaisie.setBackground(FOND);
-        barreSaisie.setBorder(BorderFactory.createEmptyBorder(4, 12, 12, 12));
+        barreSaisie.setBorder(BorderFactory.createEmptyBorder(6, 16, 14, 16));
         barreSaisie.add(champSaisie, BorderLayout.CENTER);
         barreSaisie.add(boutonValider, BorderLayout.EAST);
 
@@ -152,6 +172,46 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
 
         add(panneauImage, BorderLayout.CENTER);
         add(bas, BorderLayout.SOUTH);
+    }
+
+    /** Construit les styles de texte et l'espacement des paragraphes. */
+    private void construireStyles() {
+        String police = choisirPolice("Noto Serif", "DejaVu Serif", "Georgia", "Serif");
+
+        styleNormal = style(police, TEXTE, false, false);
+        stylePositif = style(police, VERT, true, false);
+        styleNegatif = style(police, ROUGE, true, false);
+        styleInvite = style(police, ACCENT, true, false);
+        styleEcho = style(police, GRIS, false, true);
+
+        // Interligne aéré et espace entre les blocs, appliqués à tout le texte.
+        StyledDocument doc = zoneTexte.getStyledDocument();
+        Style defaut = doc.getStyle(StyleContext.DEFAULT_STYLE);
+        StyleConstants.setLineSpacing(defaut, 0.32f);
+        StyleConstants.setSpaceBelow(defaut, 9f);
+        StyleConstants.setLeftIndent(defaut, 2f);
+    }
+
+    private static AttributeSet style(String police, Color couleur, boolean gras, boolean italique) {
+        SimpleAttributeSet s = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(s, police);
+        StyleConstants.setFontSize(s, TAILLE_TEXTE);
+        StyleConstants.setForeground(s, couleur);
+        StyleConstants.setBold(s, gras);
+        StyleConstants.setItalic(s, italique);
+        return s;
+    }
+
+    /** Renvoie la première police installée parmi les préférences (dernier = repli logique). */
+    private static String choisirPolice(String... preferences) {
+        var dispo = Arrays.asList(
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+        for (String p : preferences) {
+            if (dispo.contains(p)) {
+                return p;
+            }
+        }
+        return preferences[preferences.length - 1];
     }
 
     /** Crée la fenêtre puis lance la partie sur un thread dédié. */
@@ -184,14 +244,14 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
     private void soumettre() {
         String texte = champSaisie.getText();
         champSaisie.setText("");
-        toutAfficher = false;        // la prochaine salve de texte se réécrit lettre par lettre
-        ajouterTexte(texte + "\n");  // écho de la saisie (immédiat)
+        toutAfficher = false;                  // la prochaine salve se réécrit lettre par lettre
+        ajouterTexte(texte + "\n", styleEcho); // écho de la saisie (immédiat)
         fileSaisie.offer(texte);
     }
 
     private void terminer() {
         SwingUtilities.invokeLater(() -> {
-            ajouterTexte("\n— Partie terminée. Fermez la fenêtre pour quitter. —\n");
+            ajouterTexte("\n— Partie terminée. Fermez la fenêtre pour quitter. —\n", styleEcho);
             champSaisie.setEnabled(false);
             boutonValider.setEnabled(false);
         });
@@ -201,12 +261,12 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
 
     @Override
     public void afficher(String message) {
-        frapper(message + "\n");
+        frapper(message + "\n", stylePour(message));
     }
 
     @Override
     public void afficherSansSaut(String message) {
-        frapper(message);
+        frapper(message, styleInvite);
     }
 
     @Override
@@ -238,12 +298,35 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
         SwingUtilities.invokeLater(() -> panneauImage.changerZone(img, titre));
     }
 
+    /** Choisit la couleur du message : vert pour une réussite, rouge pour un échec. */
+    private AttributeSet stylePour(String message) {
+        String m = message.toLowerCase();
+        if (contient(m, "bravo", "bonne réponse", "félicit", "récupér", "réussi",
+                "montez à bord", "gagnez", "s'ouvre", "les trois clés")) {
+            return stylePositif;
+        }
+        if (contient(m, "mauvaise", "perdue", "désolé", "invalide", "reste close", "repris",
+                "perdez", "indéchiffrable", "verrouillé", "alarme", "trop de temps")) {
+            return styleNegatif;
+        }
+        return styleNormal;
+    }
+
+    private static boolean contient(String texte, String... motsCles) {
+        for (String mot : motsCles) {
+            if (texte.contains(mot)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ---------- Effet machine à écrire ----------
 
-    /** Écrit le texte caractère par caractère et bloque l'appelant jusqu'à la fin. */
-    private void frapper(String texte) {
+    /** Écrit le texte caractère par caractère (dans le style donné) et bloque jusqu'à la fin. */
+    private void frapper(String texte, AttributeSet style) {
         CountDownLatch latch = new CountDownLatch(1);
-        SwingUtilities.invokeLater(() -> demarrerFrappe(texte, latch));
+        SwingUtilities.invokeLater(() -> demarrerFrappe(texte, style, latch));
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -251,11 +334,12 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
         }
     }
 
-    private void demarrerFrappe(String texte, CountDownLatch latch) {
+    private void demarrerFrappe(String texte, AttributeSet style, CountDownLatch latch) {
         frappeTerminee = latch;
+        styleFrappe = style;
         if (toutAfficher) {                 // accéléré : on affiche d'un coup
             resteAFrapper = "";
-            ajouterTexte(texte);
+            ajouterTexte(texte, style);
             libererFrappe();
             return;
         }
@@ -265,7 +349,7 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
                 finirFrappe();
                 return;
             }
-            ajouterTexte(resteAFrapper.substring(0, 1));
+            ajouterTexte(resteAFrapper.substring(0, 1), styleFrappe);
             resteAFrapper = resteAFrapper.substring(1);
         });
         timerFrappe.start();
@@ -278,7 +362,7 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
             timerFrappe = null;
         }
         if (!resteAFrapper.isEmpty()) {
-            ajouterTexte(resteAFrapper);
+            ajouterTexte(resteAFrapper, styleFrappe);
             resteAFrapper = "";
         }
         libererFrappe();
@@ -291,9 +375,14 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
         }
     }
 
-    private void ajouterTexte(String texte) {
-        zoneTexte.append(texte);
-        zoneTexte.setCaretPosition(zoneTexte.getDocument().getLength());
+    private void ajouterTexte(String texte, AttributeSet style) {
+        try {
+            StyledDocument doc = zoneTexte.getStyledDocument();
+            doc.insertString(doc.getLength(), texte, style);
+            zoneTexte.setCaretPosition(doc.getLength());
+        } catch (BadLocationException e) {
+            // position toujours valide (fin du document) : ne devrait pas survenir
+        }
     }
 
     /**
@@ -416,7 +505,7 @@ public class FenetreJeu extends JFrame implements EntreeSortie {
 
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("SansSerif", Font.BOLD, 34));
+            g2.setFont(new Font("Serif", Font.BOLD, 34));
             FontMetrics fm = g2.getFontMetrics();
             int tx = (pw - fm.stringWidth(texte)) / 2;
             int ty = bandeY + (bandeH + fm.getAscent() - fm.getDescent()) / 2;
