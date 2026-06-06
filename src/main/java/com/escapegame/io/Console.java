@@ -14,7 +14,7 @@ import java.util.Scanner;
  * <p>Le {@code Scanner} interne n'est donc jamais fermé en cours de partie. La source
  * d'entrée est injectable, ce qui rend le jeu testable avec une entrée scriptée.</p>
  */
-public class Console {
+public class Console implements EntreeSortie {
 
     private final Scanner scanner;
 
