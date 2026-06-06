@@ -1,7 +1,6 @@
 package com.escapegame.auth;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -109,7 +108,9 @@ public class DepotJoueurs {
                 }
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("Lecture du fichier de comptes impossible", e);
+            // Système de fichiers indisponible (ex. navigateur via CheerpJ) :
+            // on démarre sans comptes persistés plutôt que de planter.
+            System.err.println("Comptes : lecture impossible, démarrage à vide (" + e.getMessage() + ")");
         }
     }
 
@@ -124,7 +125,8 @@ public class DepotJoueurs {
             }
             Files.writeString(fichier, sb.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new UncheckedIOException("Écriture du fichier de comptes impossible", e);
+            // En lecture seule (navigateur), on conserve les comptes en mémoire pour la session.
+            System.err.println("Comptes : sauvegarde impossible, conservés en mémoire (" + e.getMessage() + ")");
         }
     }
 
